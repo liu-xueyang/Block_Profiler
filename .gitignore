@@ -1,0 +1,5 @@
+obj-intel64
+*.vcxproj
+.vscode
+trace.out*
+profile.out
