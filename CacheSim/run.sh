@@ -1,0 +1,1 @@
+python3 cachesimulator.py --trace ../trace.out.1
