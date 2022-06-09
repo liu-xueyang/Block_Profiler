@@ -13,7 +13,7 @@ import traceback
 import argparse
 
 ################ Parse input arguments ####################
-parser = argparse.ArgumentParser(description='Process some integers.')
+parser = argparse.ArgumentParser(description='Simple lightweight trace-based cache simulation.')
 parser.add_argument('--trace', type=str, required=True,
                     help='Input trace file to pass. Has to be the same format as pinatrace tool output')
 parser.add_argument('--out', type=str, help='Profile output result file name')
@@ -23,7 +23,7 @@ workload = args.trace
 if args.out:
     outputfilename = args.out
 else:
-    outputfilename = workload + ".profile"
+    outputfilename = workload + ".cacheProfile"
 if args.traceout:
     outputTraceName = args.traceout
 else:
@@ -83,7 +83,7 @@ p=0
 dot='.'
 try:
     with open(workload,'r') as ff:
-        for count, line in enumerate(ff):
+        for count, line in enumerate(ff): # What's this trying to do?
             if count % 300000 == 0 and count >= 300000:
                 p+=1
                 sys.stdout.write('Task size assessing'+'%'*p+dot*(10-p)+'\r')
