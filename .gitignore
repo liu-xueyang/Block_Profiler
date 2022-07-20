@@ -1,7 +1,9 @@
 obj-intel64
 *.vcxproj
 .vscode
-*trace.*
+*trace*
 profile.out
 pintool.log
 hello_world
+data_gen
+*_data.txt
