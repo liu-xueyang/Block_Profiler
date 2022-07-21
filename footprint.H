@@ -36,6 +36,9 @@ const unsigned int FOOTPRINT_LOAD  = 1;
 const unsigned int FOOTPRINT_STORE = 2;
 const unsigned int FOOTPRINT_CODE  = 4;
 
+
+bool profile_en = false;
+
 class footprint_thread_data_t
 {
     map< ADDRINT, unsigned int > mem;
@@ -132,7 +135,6 @@ class footprint_t
     TLS_KEY tls_key;
     unsigned int num_threads;
     static const unsigned int chunk_size = 64;
-    bool profile_en = false;
     footprint_thread_data_t* get_tls(THREADID tid)
     {
         footprint_thread_data_t* tdata = static_cast< footprint_thread_data_t* >(PIN_GetThreadData(tls_key, tid));
@@ -176,8 +178,9 @@ class footprint_t
         out              = new std::ofstream(file_name.c_str());
     }
 
-    void reset(string file_name) {
+    void restart(string file_name) {
         out              = new std::ofstream(file_name.c_str());
+        profile_en       = true;
         for (unsigned int i = 0; i < num_threads; i++)
         {
             footprint_thread_data_t* tdata = get_tls(i);
@@ -193,16 +196,6 @@ class footprint_t
         PIN_AddFiniFunction(reinterpret_cast< FINI_CALLBACK >(fini), this);
     }
 
-    void enable()
-    {
-        profile_en = true;
-    }
-
-    void disable()
-    {
-        profile_en = false;
-    }
-
     static ADDRINT mask(ADDRINT ea)
     {
         const ADDRINT mask = ~static_cast< ADDRINT >(chunk_size - 1);
@@ -211,7 +204,7 @@ class footprint_t
 
     static void load(footprint_t* xthis, THREADID tid, ADDRINT memea, UINT32 length)
     {
-        // if (!profile_en) return;
+        if (!profile_en) return;
         ADDRINT start                  = mask(memea);
         ADDRINT end                    = mask(memea + length - 1);
         footprint_thread_data_t* tdata = xthis->get_tls(tid);
@@ -222,7 +215,7 @@ class footprint_t
     }
     static void store(footprint_t* xthis, THREADID tid, ADDRINT memea, UINT32 length)
     {
-        // if (!profile_en) return;
+        if (!profile_en) return;
         ADDRINT start                  = mask(memea);
         ADDRINT end                    = mask(memea + length - 1);
         footprint_thread_data_t* tdata = xthis->get_tls(tid);
@@ -297,5 +290,6 @@ class footprint_t
         xthis->summary();
         *(xthis->out) << "# EOF" << endl;
         xthis->out->close();
+        profile_en = false;
     }
 };

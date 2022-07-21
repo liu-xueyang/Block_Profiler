@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     }
 
     // Execute vector add in parallel
-    ANNOTATE_SITE_BEGIN_WKR("vadd", 0);
+    ANNOTATE_SITE_BEGIN_WKR("full", 0);
     #pragma omp parallel num_threads(numThreads)
     {
  
@@ -51,6 +51,24 @@ int main(int argc, char* argv[])
 
             if (arr_i < numElements) {
                 h_C[arr_i] = h_A[arr_i] + h_B[arr_i] + 0.0f;
+            }
+        }
+        #pragma omp barrier
+    }
+    ANNOTATE_SITE_END_WKR(0);
+
+    ANNOTATE_SITE_BEGIN_WKR("half", 0);
+    #pragma omp parallel num_threads(numThreads)
+    {
+ 
+        // printf("Hello World... from thread = %d\n",
+        //        omp_get_thread_num());
+        int threadId = omp_get_thread_num();
+        for (int i = 0; i < ops_per_thread; i++) {
+            int arr_i = threadId * ops_per_thread + i;
+
+            if (arr_i < numElements/2) {
+                h_C[arr_i] = h_A[arr_i] + 1.0f;
             }
         }
         #pragma omp barrier

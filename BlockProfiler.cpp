@@ -170,17 +170,13 @@ VOID Trace(TRACE trace, VOID* v)
 VOID PIN_FAST_ANALYSIS_CALL ProfilingStartPoint(char *name, void* siteObj)
 {
     cerr << "Encountered profiling start point " << name << endl;
-    // TraceFile << "#eof" << endl;
-    // TraceFile.close();
 
-    // num_region++;
     std::stringstream ss;
     ss << KnobTraceFile.Value() << "." << name;
     string newTraceFileName;
     ss >> newTraceFileName;
 
-    footprint.reset(newTraceFileName);
-    footprint.enable();
+    footprint.restart(newTraceFileName);
     // TraceFile.open(newTraceFileName.c_str());
     // TraceFile.write(trace_header.c_str(), trace_header.size());
     // TraceFile.setf(ios::showbase);
@@ -191,7 +187,6 @@ VOID PIN_FAST_ANALYSIS_CALL ProfilingEndPoint(void* siteObj)
 {
 
     // TraceFile.close();
-    footprint.disable();
     footprint.fini(0, &footprint);
 
 }
