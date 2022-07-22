@@ -11,7 +11,7 @@
  
 int main(int argc, char* argv[])
 {
-    int numElements = 1024*1024*32;
+    int numElements = 1024*1024;
     size_t size = numElements * sizeof(float);
     int numThreads = 8; 
     int ops_per_thread = numElements / numThreads + 1;
@@ -33,10 +33,14 @@ int main(int argc, char* argv[])
     }
 
     // Initialize the host input vectors
+    
+    ANNOTATE_SITE_BEGIN_WKR("start", 0);
     for (int i = 0; i < numElements; ++i) {
         h_A[i] = rand() / (float)RAND_MAX;
         h_B[i] = rand() / (float)RAND_MAX;
     }
+    ANNOTATE_SITE_END_WKR(0);
+
 
     // Execute vector add in parallel
     ANNOTATE_SITE_BEGIN_WKR("full", 0);
@@ -75,4 +79,11 @@ int main(int argc, char* argv[])
     }
     ANNOTATE_SITE_END_WKR(0);
     // Ending of parallel region
+
+    ANNOTATE_SITE_BEGIN_WKR("end", 0);
+    for (int i = 0; i < numElements; ++i) {
+        h_A[i] = rand() / (float)RAND_MAX;
+        h_B[i] = rand() / (float)RAND_MAX;
+    }
+    ANNOTATE_SITE_END_WKR(0);
 }

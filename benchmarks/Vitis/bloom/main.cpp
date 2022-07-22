@@ -97,6 +97,8 @@ void setupData()
         profile_weights[i] = 0;
     }
 
+    printf("Profile_weight size is %lu, bloom filter size is %lu", (1L << 24), 1L << bloom_size);
+
     for (unsigned i=0; i<16384; i++) {
         unsigned entry = (rand()%(1<<24));	
 

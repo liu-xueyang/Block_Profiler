@@ -176,7 +176,7 @@ VOID PIN_FAST_ANALYSIS_CALL ProfilingStartPoint(char *name, void* siteObj)
     string newTraceFileName;
     ss >> newTraceFileName;
 
-    footprint.restart(newTraceFileName);
+    footprint.start_region(newTraceFileName);
     // TraceFile.open(newTraceFileName.c_str());
     // TraceFile.write(trace_header.c_str(), trace_header.size());
     // TraceFile.setf(ios::showbase);
@@ -187,7 +187,7 @@ VOID PIN_FAST_ANALYSIS_CALL ProfilingEndPoint(void* siteObj)
 {
 
     // TraceFile.close();
-    footprint.fini(0, &footprint);
+    footprint.end_region();
 
 }
 

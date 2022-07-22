@@ -24,6 +24,7 @@ void runOnCPU (
 {
 
     unsigned int size_offset=0;
+    printf("Total num docs is %d, total size is %d", total_num_docs, total_size);
 
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
 

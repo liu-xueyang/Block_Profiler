@@ -29,6 +29,7 @@ optimization opportunity: do all the code fetches for a basic block at one time.
 using std::cerr;
 using std::cout;
 using std::endl;
+using std::vector;
 using std::map;
 using std::string;
 
@@ -36,6 +37,7 @@ const unsigned int FOOTPRINT_LOAD  = 1;
 const unsigned int FOOTPRINT_STORE = 2;
 const unsigned int FOOTPRINT_CODE  = 4;
 
+#define PROFILE_CHUNK_SIZE 4*1024
 
 bool profile_en = false;
 
@@ -47,6 +49,9 @@ class footprint_thread_data_t
     footprint_thread_data_t() {}
     void reset() {
         mem.clear();
+    }
+    void print_size() {
+        cout << "footprint map size is " << mem.size() << endl;
     }
 
     void load(ADDRINT ea)
@@ -128,13 +133,15 @@ class footprint_thread_data_t
     }
 };
 
+vector<vector<footprint_thread_data_t>> region_footprints;
+
 class footprint_t
 {
     KNOB< string > knob_output_file;
     std::ofstream* out;
     TLS_KEY tls_key;
     unsigned int num_threads;
-    static const unsigned int chunk_size = 64;
+    static const unsigned int chunk_size = PROFILE_CHUNK_SIZE;
     footprint_thread_data_t* get_tls(THREADID tid)
     {
         footprint_thread_data_t* tdata = static_cast< footprint_thread_data_t* >(PIN_GetThreadData(tls_key, tid));
@@ -178,7 +185,7 @@ class footprint_t
         out              = new std::ofstream(file_name.c_str());
     }
 
-    void restart(string file_name) {
+    void start_region(string file_name) {
         out              = new std::ofstream(file_name.c_str());
         profile_en       = true;
         for (unsigned int i = 0; i < num_threads; i++)
@@ -186,6 +193,24 @@ class footprint_t
             footprint_thread_data_t* tdata = get_tls(i);
             tdata->reset();
         }
+    }
+
+    void end_region() {
+        vector<footprint_thread_data_t> this_footprint;
+        for (unsigned int i = 0; i < num_threads; i++)
+        {
+            footprint_thread_data_t* tdata = get_tls(i);
+            this_footprint.push_back(*tdata);
+        }
+        region_footprints.push_back(this_footprint);
+        // for (auto it : region_footprints) {
+        //     for (auto j : it) j.print_size();
+        // }
+        *out << "# Chunk size " << chunk_size << " bytes " << endl;
+        summary();
+        *out << "# EOF" << endl;
+        out->close();
+        profile_en = false;
     }
 
     void activate()
@@ -284,12 +309,12 @@ class footprint_t
         }
     }
 
+    // Analyze the region intersection/union for dependency
     static void fini(int, footprint_t* xthis)
     {
-        *(xthis->out) << "# Chunk size " << xthis->chunk_size << " bytes " << endl;
-        xthis->summary();
-        *(xthis->out) << "# EOF" << endl;
-        xthis->out->close();
-        profile_en = false;
+        // RAW
+
+        // RAR/WAW
+        
     }
 };
